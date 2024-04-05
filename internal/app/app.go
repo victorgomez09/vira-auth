@@ -5,10 +5,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/qsoulior/auth-server/internal/repo"
-	"github.com/qsoulior/auth-server/internal/usecase"
-	"github.com/qsoulior/auth-server/pkg/db"
-	"github.com/qsoulior/auth-server/pkg/log"
+	"github.com/vira-software/auth-server/internal/db"
+	"github.com/vira-software/auth-server/internal/log"
+	repo "github.com/vira-software/auth-server/internal/repositories"
+	usecase "github.com/vira-software/auth-server/internal/services"
 )
 
 // Run initializes application modules and runs server.
@@ -36,28 +36,28 @@ func Run(cfg *Config, logger log.Logger) error {
 	logger.Info("repositories initialized")
 
 	// use cases initialization
-	userUС, err := usecase.NewUser(
-		usecase.UserRepos{userRepo},
-		usecase.UserParams{cfg.Bcrypt.Cost},
+	userService, err := usecase.NewUser(
+		usecase.UserRepos{User: userRepo},
+		usecase.UserParams{HashCost: cfg.Bcrypt.Cost},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to init user usecase: %w", err)
 	}
 
-	tokenUС, err := usecase.NewToken(
-		usecase.TokenRepos{tokenRepo, roleRepo},
-		usecase.TokenParams{cfg.AT.Age, cfg.RT.Age, cfg.RT.Cap},
+	tokenService, err := usecase.NewToken(
+		usecase.TokenRepos{Token: tokenRepo, Role: roleRepo},
+		usecase.TokenParams{AccessAge: cfg.AT.Age, RefreshAge: cfg.RT.Age, RefreshCap: cfg.RT.Cap},
 		builder,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to init token usecase: %w", err)
 	}
 
-	authUС := usecase.NewAuth(parser)
+	authService := usecase.NewAuth(parser)
 	logger.Info("use cases initialized")
 
 	// server listening
-	server := NewServer(cfg, logger, userUС, tokenUС, authUС)
+	server := NewServer(cfg, logger, userService, tokenService, authService)
 	logger.Info("server created with address " + server.Addr)
 	return fmt.Errorf("server down: %w", server.ListenAndServe())
 }

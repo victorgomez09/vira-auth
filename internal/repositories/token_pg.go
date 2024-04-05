@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/pkg/db"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/db"
+	"github.com/vira-software/auth-server/internal/models"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // tokenPostgres implements Token interface.
@@ -23,9 +23,9 @@ func NewTokenPostgres(db *db.Postgres) *tokenPostgres {
 }
 
 // Create creates a new refresh token.
-// It returns pointer to an entity.RefreshToken instance
+// It returns pointer to an models.RefreshToken instance
 // or nil if data is incorrect.
-func (t *tokenPostgres) Create(ctx context.Context, data entity.RefreshToken) (*entity.RefreshToken, error) {
+func (t *tokenPostgres) Create(ctx context.Context, data models.RefreshToken) (*models.RefreshToken, error) {
 	const query = `INSERT INTO token(expires_at, fingerprint, is_session, user_id) VALUES ($1, $2, $3, $4) RETURNING *`
 
 	rows, err := t.Pool.Query(ctx, query, data.ExpiresAt, data.Fingerprint, data.Session, data.UserID)
@@ -33,7 +33,7 @@ func (t *tokenPostgres) Create(ctx context.Context, data entity.RefreshToken) (*
 		return nil, err
 	}
 
-	token, err := pgx.CollectOneRow[entity.RefreshToken](rows, pgx.RowToStructByPos[entity.RefreshToken])
+	token, err := pgx.CollectOneRow[models.RefreshToken](rows, pgx.RowToStructByPos[models.RefreshToken])
 	if err != nil {
 		return nil, err
 	}
@@ -42,9 +42,9 @@ func (t *tokenPostgres) Create(ctx context.Context, data entity.RefreshToken) (*
 }
 
 // GetByID gets a refresh token by ID.
-// It returns pointer to an entity.RefreshToken instance
+// It returns pointer to an models.RefreshToken instance
 // or nil if id is incorrect.
-func (t *tokenPostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.RefreshToken, error) {
+func (t *tokenPostgres) GetByID(ctx context.Context, id uuid.UUID) (*models.RefreshToken, error) {
 	const query = `SELECT * FROM token WHERE id = $1`
 
 	rows, err := t.Pool.Query(ctx, query, id)
@@ -52,7 +52,7 @@ func (t *tokenPostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.Refr
 		return nil, err
 	}
 
-	token, err := pgx.CollectOneRow[entity.RefreshToken](rows, pgx.RowToStructByPos[entity.RefreshToken])
+	token, err := pgx.CollectOneRow[models.RefreshToken](rows, pgx.RowToStructByPos[models.RefreshToken])
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, ErrNoRows
 	}
@@ -65,8 +65,8 @@ func (t *tokenPostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.Refr
 }
 
 // GetByUser gets refresh tokens by user ID.
-// It returns slice of entity.RefreshToken instances.
-func (t *tokenPostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]entity.RefreshToken, error) {
+// It returns slice of models.RefreshToken instances.
+func (t *tokenPostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]models.RefreshToken, error) {
 	const query = `SELECT * FROM token WHERE user_id = $1 ORDER BY expires_at`
 
 	rows, err := t.Pool.Query(ctx, query, userID)
@@ -74,7 +74,7 @@ func (t *tokenPostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]enti
 		return nil, err
 	}
 
-	tokens, err := pgx.CollectRows(rows, pgx.RowToStructByPos[entity.RefreshToken])
+	tokens, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.RefreshToken])
 	if err != nil {
 		return nil, err
 	}

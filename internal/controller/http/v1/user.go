@@ -4,21 +4,21 @@ import (
 	"encoding/json"
 	"net/http"
 
-	api "github.com/qsoulior/auth-server/internal/controller/http"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/internal/usecase"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	api "github.com/vira-software/auth-server/internal/controller/http"
+	"github.com/vira-software/auth-server/internal/models"
+	services "github.com/vira-software/auth-server/internal/services"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // user represents controllers grouped by user route.
 type user struct {
-	userUC usecase.User
+	userUC services.User
 }
 
 // Create reads user from request
 // and calls User.Create to create a new user.
 func (u *user) Create(w http.ResponseWriter, r *http.Request) {
-	var user entity.User
+	var user models.User
 	d := json.NewDecoder(r.Body)
 	err := d.Decode(&user)
 	if err != nil {
@@ -28,7 +28,7 @@ func (u *user) Create(w http.ResponseWriter, r *http.Request) {
 
 	_, err = u.userUC.Create(user)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
 		})
 		return
@@ -45,7 +45,7 @@ func (u *user) Get(w http.ResponseWriter, r *http.Request) {
 
 	user, err := u.userUC.Get(userID)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusNotFound)
 		})
 		return
@@ -78,7 +78,7 @@ func (u *user) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err = u.userUC.Delete(userID, []byte(body.Password))
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
 		})
 		return
@@ -107,7 +107,7 @@ func (u *user) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 
 	err = u.userUC.UpdatePassword(userID, []byte(body.CurrentPassword), []byte(body.NewPassword))
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
 		})
 		return

@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -22,6 +23,7 @@ type Params struct {
 // It returns jwt.SigningMethod or nil if alg is invalid or "none".
 func GetSigningMethod(alg string) (jwt.SigningMethod, error) {
 	method := jwt.GetSigningMethod(alg)
+	fmt.Println("algo", method)
 
 	if method == nil {
 		return nil, ErrAlgInvalid

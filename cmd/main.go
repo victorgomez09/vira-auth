@@ -4,8 +4,8 @@ package main
 import (
 	"flag"
 
-	"github.com/qsoulior/auth-server/internal/app"
-	"github.com/qsoulior/auth-server/pkg/log"
+	"github.com/vira-software/auth-server/internal/app"
+	"github.com/vira-software/auth-server/internal/log"
 )
 
 // Main function.

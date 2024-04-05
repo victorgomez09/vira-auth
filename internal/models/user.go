@@ -1,12 +1,12 @@
-package entity
+package models
 
 import (
 	"encoding/json"
 
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
-// User entity.
+// User model.
 type User struct {
 	ID       uuid.UUID `json:"id"`
 	Name     string    `json:"name"`

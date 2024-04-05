@@ -1,16 +1,16 @@
-package entity
+package models
 
 import (
 	"encoding/json"
 	"time"
 
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
-// Access token entity.
+// Access token model.
 type AccessToken string
 
-// Refresh token entity.
+// Refresh token model.
 type RefreshToken struct {
 	ID          uuid.UUID `json:"id"`
 	ExpiresAt   time.Time `json:"expires_at"`

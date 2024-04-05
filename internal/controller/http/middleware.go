@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/qsoulior/auth-server/pkg/log"
+	"github.com/vira-software/auth-server/internal/log"
 )
 
 // Middleware is function that takes and returns http.Handler.

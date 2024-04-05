@@ -1,4 +1,4 @@
-module github.com/qsoulior/auth-server
+module github.com/vira-software/auth-server
 
 go 1.21.1
 

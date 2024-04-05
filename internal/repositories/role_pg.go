@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/pkg/db"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/db"
+	"github.com/vira-software/auth-server/internal/models"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // rolePostgres implements Role interface.
@@ -24,10 +24,10 @@ func NewRolePostgres(db *db.Postgres) *rolePostgres {
 // Create creates a new role.
 // It returns pointer to an entity.Role instance
 // or nil if data is incorrect.
-func (r *rolePostgres) Create(ctx context.Context, data entity.Role) (*entity.Role, error) {
+func (r *rolePostgres) Create(ctx context.Context, data models.Role) (*models.Role, error) {
 	const query = `INSERT INTO role(title, description) VALUES ($1, $2) RETURNING *`
 
-	var role entity.Role
+	var role models.Role
 	err := r.Pool.QueryRow(ctx, query, data.Title, data.Description).Scan(&role.ID, &role.Title, &role.Description)
 
 	if err != nil {
@@ -40,10 +40,10 @@ func (r *rolePostgres) Create(ctx context.Context, data entity.Role) (*entity.Ro
 // GetByID gets a role by ID.
 // It returns pointer to an entity.Role instance
 // or nil if id is incorrect.
-func (r *rolePostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.Role, error) {
+func (r *rolePostgres) GetByID(ctx context.Context, id uuid.UUID) (*models.Role, error) {
 	const query = `SELECT * FROM role WHERE id = $1`
 
-	var role entity.Role
+	var role models.Role
 	err := r.Pool.QueryRow(ctx, query, id).Scan(&role.ID, &role.Title, &role.Description)
 
 	if err == pgx.ErrNoRows {
@@ -59,7 +59,7 @@ func (r *rolePostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.Role,
 
 // GetByUser gets roles by user ID.
 // It returns slice of entity.Role instances.
-func (r *rolePostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]entity.Role, error) {
+func (r *rolePostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]models.Role, error) {
 	const query = `SELECT id, title, description FROM (SELECT * FROM user_role WHERE user_id = $1) AS user_role JOIN role ON user_role.role_id = role.id`
 
 	rows, err := r.Pool.Query(ctx, query, userID)
@@ -67,7 +67,7 @@ func (r *rolePostgres) GetByUser(ctx context.Context, userID uuid.UUID) ([]entit
 		return nil, err
 	}
 
-	roles, err := pgx.CollectRows(rows, pgx.RowToStructByPos[entity.Role])
+	roles, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.Role])
 	if err != nil {
 		return nil, err
 	}

@@ -6,8 +6,8 @@ import (
 	"crypto/sha256"
 	"errors"
 
-	"github.com/qsoulior/auth-server/internal/pkg/hash"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/hash"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 var (

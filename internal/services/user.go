@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/internal/repo"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/models"
+	repo "github.com/vira-software/auth-server/internal/repositories"
+	"github.com/vira-software/auth-server/internal/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -121,8 +121,8 @@ func NewUser(repos UserRepos, params UserParams) (*user, error) {
 }
 
 // Create validates data and creates a new user.
-// It returns pointer to an entity.User instance or nil if an error occurred.
-func (u *user) Create(data entity.User) (*entity.User, error) {
+// It returns pointer to an models.User instance or nil if an error occurred.
+func (u *user) Create(data models.User) (*models.User, error) {
 	_, err := u.repos.User.GetByName(context.Background(), data.Name)
 	if err == nil {
 		return nil, NewError(ErrUserExists, true)
@@ -150,8 +150,8 @@ func (u *user) Create(data entity.User) (*entity.User, error) {
 }
 
 // Get gets a user by ID.
-// It returns pointer to an entity.User instance or nil if an error occurred.
-func (u *user) Get(id uuid.UUID) (*entity.User, error) {
+// It returns pointer to an models.User instance or nil if an error occurred.
+func (u *user) Get(id uuid.UUID) (*models.User, error) {
 	user, err := u.repos.User.GetByID(context.Background(), id)
 	if err != nil {
 		if errors.Is(err, repo.ErrNoRows) {
@@ -167,7 +167,7 @@ func (u *user) Get(id uuid.UUID) (*entity.User, error) {
 // and is used in authentication process.
 // It returns user ID if name and password are correct
 // or empty UUID if an error occurred.
-func (u *user) Verify(data entity.User) (uuid.UUID, error) {
+func (u *user) Verify(data models.User) (uuid.UUID, error) {
 	user, err := u.repos.User.GetByName(context.Background(), data.Name)
 	if err != nil {
 		if errors.Is(err, repo.ErrNoRows) {

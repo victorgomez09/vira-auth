@@ -6,16 +6,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	api "github.com/qsoulior/auth-server/internal/controller/http"
-	v1 "github.com/qsoulior/auth-server/internal/controller/http/v1"
-	"github.com/qsoulior/auth-server/internal/usecase"
-	"github.com/qsoulior/auth-server/pkg/log"
 	"github.com/rs/cors"
+	api "github.com/vira-software/auth-server/internal/controller/http"
+	v1 "github.com/vira-software/auth-server/internal/controller/http/v1"
+	"github.com/vira-software/auth-server/internal/log"
+	services "github.com/vira-software/auth-server/internal/services"
 )
 
 // NewServer creates mux and http.Server instance, appends middlewares and mounts controllers.
 // It returns pointer to a http.Server instance.
-func NewServer(cfg *Config, logger log.Logger, user usecase.User, token usecase.Token, auth usecase.Auth) *http.Server {
+func NewServer(cfg *Config, logger log.Logger, user services.User, token services.Token, auth services.Auth) *http.Server {
 	mux := chi.NewMux()
 
 	mux.Use(middleware.RealIP)

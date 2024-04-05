@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"github.com/qsoulior/auth-server/pkg/jwt"
+	"github.com/vira-software/auth-server/internal/jwt"
 )
 
 // NewJWT reads private and public keys, creates JWT builder and JWT parser.
@@ -19,12 +19,12 @@ func NewJWT(cfg *Config) (jwt.Builder, jwt.Parser, error) {
 		return nil, nil, fmt.Errorf("public key: %w", err)
 	}
 
-	builder, err := jwt.NewBuilder(jwt.Params{cfg.Name, cfg.AT.Alg, privateKey})
+	builder, err := jwt.NewBuilder(jwt.Params{Issuer: cfg.Name, Algorithm: cfg.AT.Alg, Key: privateKey})
 	if err != nil {
 		return nil, nil, fmt.Errorf("builder: %w", err)
 	}
 
-	parser, err := jwt.NewParser(jwt.Params{cfg.Name, cfg.AT.Alg, publicKey})
+	parser, err := jwt.NewParser(jwt.Params{Issuer: cfg.Name, Algorithm: cfg.AT.Alg, Key: publicKey})
 	if err != nil {
 		return nil, nil, fmt.Errorf("parser: %w", err)
 	}

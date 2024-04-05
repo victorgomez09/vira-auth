@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -36,11 +37,13 @@ func NewParser(params Params) (*parser, error) {
 // It returns pointer to a Claims or nil if parsing failed.
 func (p *parser) Parse(tokenString string) (*Claims, error) {
 	parser := jwt.NewParser(jwt.WithValidMethods([]string{p.params.Algorithm}), jwt.WithIssuer(p.params.Issuer))
+	fmt.Println("algo", p.params.Algorithm)
 	token, err := parser.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (any, error) {
 		return p.params.Key, nil
 	})
 
 	if err != nil {
+		fmt.Println("soy un error", err)
 		return nil, err
 	}
 

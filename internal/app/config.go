@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/qsoulior/auth-server/pkg/config"
+	"github.com/vira-software/auth-server/internal/config"
 )
 
 const (

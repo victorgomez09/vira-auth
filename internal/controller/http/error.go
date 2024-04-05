@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/qsoulior/auth-server/internal/usecase"
+	services "github.com/vira-software/auth-server/internal/services"
 )
 
 // ErrorJSON writes error in JSON format and status code to response.
@@ -46,8 +46,8 @@ func DecodingError(w http.ResponseWriter) {
 }
 
 // HandleError calls fn or panics if error is internal.
-func HandleError(err error, fn func(e *usecase.Error)) {
-	var e *usecase.Error
+func HandleError(err error, fn func(e *services.Error)) {
+	var e *services.Error
 	if errors.As(err, &e) && e.External {
 		fn(e)
 		return

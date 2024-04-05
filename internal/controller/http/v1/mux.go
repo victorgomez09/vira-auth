@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/internal/usecase"
-	"github.com/qsoulior/auth-server/pkg/log"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/log"
+	"github.com/vira-software/auth-server/internal/models"
+	services "github.com/vira-software/auth-server/internal/services"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // Mux creates a new mux and mounts controllers.
 // It returns pointer to a chi.Mux instance.
-func Mux(userUC usecase.User, tokenUC usecase.Token, authUC usecase.Auth, logger log.Logger) http.Handler {
+func Mux(userUC services.User, tokenUC services.Token, authUC services.Auth, logger log.Logger) http.Handler {
 	user := user{userUC}
 	token := token{userUC, tokenUC}
 	auth := AuthMiddleware(authUC, logger)
@@ -44,13 +44,13 @@ func Mux(userUC usecase.User, tokenUC usecase.Token, authUC usecase.Auth, logger
 
 // readAccessToken reads access token from request's Authorization header.
 // It returns access token string or empty string if header is invalid.
-func readAccessToken(r *http.Request) (entity.AccessToken, error) {
+func readAccessToken(r *http.Request) (models.AccessToken, error) {
 	authorization := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(authorization) < 2 || authorization[0] != "Bearer" {
 		return "", errors.New("invalid authorization header")
 	}
 
-	return entity.AccessToken(authorization[1]), nil
+	return models.AccessToken(authorization[1]), nil
 }
 
 // readRefreshToken reads refresh token from request's cookie.
@@ -79,7 +79,7 @@ func readFingerprint(r *http.Request) []byte {
 }
 
 // writeAccessToken writes an access token to response body.
-func writeAccessToken(w http.ResponseWriter, token entity.AccessToken) {
+func writeAccessToken(w http.ResponseWriter, token models.AccessToken) {
 	e := json.NewEncoder(w)
 	e.Encode(map[string]any{
 		"access_token": token,
@@ -87,7 +87,7 @@ func writeAccessToken(w http.ResponseWriter, token entity.AccessToken) {
 }
 
 // writeRefreshToken writes a refresh token to response cookie.
-func writeRefreshToken(w http.ResponseWriter, token *entity.RefreshToken) {
+func writeRefreshToken(w http.ResponseWriter, token *models.RefreshToken) {
 	cookie := &http.Cookie{
 		Name:     "refresh_token",
 		Path:     "/v1/token",

@@ -1,22 +1,18 @@
 # auth-server
-[![Go Reference](https://img.shields.io/badge/-reference-007d9c?style=flat-square&logo=go&logoColor=fafafa&labelColor=555555)](https://pkg.go.dev/github.com/qsoulior/auth-server)
-![Go Version](https://img.shields.io/github/go-mod/go-version/qsoulior/auth-server?style=flat-square)
-[![Go Report Card](https://goreportcard.com/badge/github.com/qsoulior/auth-server?style=flat-square)](https://goreportcard.com/report/github.com/qsoulior/auth-server)
-
 `auth-server` is a microservice that provides authentication and authorization using access and refresh tokens.
 
 ## ▶️ Features
 - __High security__ — two types of tokens, asymmetric signing, fingerprint verification, password hashing and much more
-- __Easy installation and startup__ — use [Docker](https://github.com/qsoulior/auth-server#-docker) or [Docker Compose](https://github.com/qsoulior/auth-server#-docker-compose)
-- __Flexible and clear configuration__ — environment variables or .env file (see [Configuration](https://github.com/qsoulior/auth-server#%EF%B8%8F-configuration))
-- __Simple interaction__ — RESTful API to interact with other services (see [Endpoints](https://github.com/qsoulior/auth-server#%EF%B8%8F-endpoints))
+- __Easy installation and startup__ — use [Docker](#🐳-docker) or [Docker Compose](#🐙-docker-compose)
+- __Flexible and clear configuration__ — environment variables or .env file (see [Configuration](#▶️-configuration))
+- __Simple interaction__ — RESTful API to interact with other services (see [Endpoints](#▶️-endpoints))
 
 ## ▶️ Installation and Startup
 In production, the database must be running and migrations must be applied. 
 
 Migrations are located in the `migrations` directory.
 ### 🖥️ Locally
-Create [configuration](https://github.com/qsoulior/auth-server#%EF%B8%8F-configuration) file and specify its path instead of `<config_file>` in the following commands.
+Create [configuration](#▶️-configuration) file and specify its path instead of `<config_file>` in the following commands.
 
 `POSTGRES_URI` must be set to URI of running PostgreSQL database.
 `KEY_PRIVATE` and `KEY_PUBLIC` must be set to generated keys paths.
@@ -26,18 +22,18 @@ go build ./cmd/main.go
 main -c <config_file>
 ```
 ### 🐳 Docker
-Create [configuration](https://github.com/qsoulior/auth-server#%EF%B8%8F-configuration) file and specify its path instead of `<config_file>` in the following commands.
+Create [configuration](#▶️-configuration) file and specify its path instead of `<config_file>` in the following commands.
 
 Private and public keys are generated using the `ECDSA` algorithm when the image is built. There is no effect of changing `KEY_PRIVATE`, `KEY_PUBLIC` or `AT_ALG`.
 
 `POSTGRES_URI` must be set to URI of running PostgreSQL database. 
-```
+```shell
 docker build -t auth-server .
 docker run -p <host_port>:<app_port> --env-file <config_file> --name auth-web auth-server
 ```
 
 You can copy generated keys to host in the following way:
-```console
+```shell
 $ docker ps
 CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS         PORTS                  NAMES
 80fb44dc1638   auth-server   "./main"   4 seconds ago   Up 2 seconds   0.0.0.0:3000->80/tcp   auth-web
@@ -49,20 +45,20 @@ $ ls ./keys
 ecdsa  ecdsa.pub
 ```
 ### 🐙 Docker Compose
-As when running using [Docker](https://github.com/qsoulior/auth-server#-docker), private and public keys are generated when the image is built.
+As when running using [Docker](#🐳-docker), private and public keys are generated when the image is built.
 
 #### For development
 Compose uses `configs/docker.dev.env` to configure web server for development. It also runs database server and applies migrations.
 
 There is no effect of changing `POSTGRES_URI`.
-```
+```shell
 docker compose -f docker-compose.dev.yaml up --build
 ```
 #### For production
 Compose uses `configs/docker.prod.env` to configure web server for production.
 
 `POSTGRES_URI` must be changed to URI of running PostgreSQL database.
-```
+```shell
 docker compose -f docker-compose.prod.yaml up --build
 ```
 
@@ -87,7 +83,7 @@ List of environment variables:
 | `BCRYPT_COST`   | 4           | 4 — 31              | Cost parameter of bcrypt algorithm used for password hashing  |
 
 .env file example:
-```dotenv
+```shell
 APP_NAME=auth
 APP_ENV=development
 KEY_PUBLIC=/secrets/ecdsa.pub
@@ -126,12 +122,12 @@ Fingerprint is created from HTTP headers `Sec-CH-UA`, `User-Agent`, `Accept-Lang
 ```cpp
 SHA256(Sec-CH-UA + ":" + User-Agent + ":" + Accept-Language + ":" + Upgrade-Insecure-Requests)
 ```
-This repository also contains package `jwt` that provides [Parser](https://github.com/qsoulior/auth-server/blob/master/pkg/jwt/parser.go#L11) interface to parse access token:
+This repository also contains package `jwt` that provides [Parser](https://github.com/vira-software/auth-server/blob/master/pkg/jwt/parser.go#L11) interface to parse access token:
 ```go
 import (
 	"fmt"
  	
-	"github.com/qsoulior/auth-server/pkg/jwt"
+	"github.com/vira-software/auth-server/pkg/jwt"
 )
 
 parser, err := jwt.NewParser(jwt.Params{issuer, alg, publicKey})

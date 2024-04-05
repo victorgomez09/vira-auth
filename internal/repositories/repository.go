@@ -4,8 +4,8 @@ package repo
 import (
 	"context"
 
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/models"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // Role is interface implemented by types
@@ -13,15 +13,15 @@ import (
 type Role interface {
 	// Create creates a new role.
 	// It returns pointer to an entity.Role instance.
-	Create(ctx context.Context, data entity.Role) (*entity.Role, error)
+	Create(ctx context.Context, data models.Role) (*models.Role, error)
 
 	// GetByID gets a role by ID.
 	// It returns pointer to an entity.Role instance.
-	GetByID(ctx context.Context, id uuid.UUID) (*entity.Role, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*models.Role, error)
 
 	// GetByUser gets roles by user ID.
 	// It returns slice of entity.Role instances.
-	GetByUser(ctx context.Context, userID uuid.UUID) ([]entity.Role, error)
+	GetByUser(ctx context.Context, userID uuid.UUID) ([]models.Role, error)
 
 	// DeleteByID deletes a role by ID.
 	DeleteByID(ctx context.Context, id uuid.UUID) error
@@ -35,15 +35,15 @@ type Role interface {
 type User interface {
 	// Create creates a new user.
 	// It returns pointer to an entity.User instance.
-	Create(ctx context.Context, data entity.User) (*entity.User, error)
+	Create(ctx context.Context, data models.User) (*models.User, error)
 
 	// GetByID gets a user by ID.
 	// It returns pointer to an entity.User instance.
-	GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*models.User, error)
 
 	// GetByName gets a user by unique name.
 	// It returns pointer to an entity.User instance.
-	GetByName(ctx context.Context, name string) (*entity.User, error)
+	GetByName(ctx context.Context, name string) (*models.User, error)
 
 	// UpdatePassword updates user's password by user ID.
 	UpdatePassword(ctx context.Context, id uuid.UUID, password []byte) error
@@ -57,15 +57,15 @@ type User interface {
 type Token interface {
 	// Create creates a new refresh token.
 	// It returns pointer to an entity.RefreshToken instance.
-	Create(ctx context.Context, data entity.RefreshToken) (*entity.RefreshToken, error)
+	Create(ctx context.Context, data models.RefreshToken) (*models.RefreshToken, error)
 
 	// GetByID gets a refresh token by ID.
 	// It returns pointer to an entity.RefreshToken instance.
-	GetByID(ctx context.Context, id uuid.UUID) (*entity.RefreshToken, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*models.RefreshToken, error)
 
 	// GetByUser gets refresh tokens by user ID.
 	// It returns slice of entity.RefreshToken instances.
-	GetByUser(ctx context.Context, userID uuid.UUID) ([]entity.RefreshToken, error)
+	GetByUser(ctx context.Context, userID uuid.UUID) ([]models.RefreshToken, error)
 
 	// DeleteByID deletes a refresh token by ID.
 	DeleteByID(ctx context.Context, id uuid.UUID) error

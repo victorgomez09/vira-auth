@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/internal/pkg/fingerprint"
-	"github.com/qsoulior/auth-server/internal/repo"
-	"github.com/qsoulior/auth-server/pkg/jwt"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/fingerprint"
+	"github.com/vira-software/auth-server/internal/jwt"
+	"github.com/vira-software/auth-server/internal/models"
+	repo "github.com/vira-software/auth-server/internal/repositories"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // TokenRepos represents repositories the token use case interacts with.
@@ -58,7 +58,7 @@ func NewToken(repos TokenRepos, params TokenParams, jwt jwt.Builder) (*token, er
 
 // verify compares user's fingerprint with token-related fingerprint.
 // It returns nil if fingerprints are equal.
-func (t *token) verify(token *entity.RefreshToken, fp []byte) error {
+func (t *token) verify(token *models.RefreshToken, fp []byte) error {
 	fpObj := fingerprint.New(token.UserID, fp)
 	if err := fpObj.Verify(token.Fingerprint); err != nil {
 		return NewError(err, true)
@@ -68,9 +68,9 @@ func (t *token) verify(token *entity.RefreshToken, fp []byte) error {
 }
 
 // create creates new access and refresh tokens using user's fingerprint.
-// It returns entity.AccessToken instance
-// and pointer to an entity.RefreshToken instance.
-func (t *token) create(userID uuid.UUID, fp []byte, session bool) (entity.AccessToken, *entity.RefreshToken, error) {
+// It returns models.AccessToken instance
+// and pointer to an models.RefreshToken instance.
+func (t *token) create(userID uuid.UUID, fp []byte, session bool) (models.AccessToken, *models.RefreshToken, error) {
 	// fingerprint
 	fpObj := fingerprint.New(userID, fp)
 	fpHash, err := fpObj.Hash()
@@ -79,7 +79,7 @@ func (t *token) create(userID uuid.UUID, fp []byte, session bool) (entity.Access
 	}
 
 	// refresh token
-	rtData := entity.RefreshToken{
+	rtData := models.RefreshToken{
 		ExpiresAt:   time.Now().AddDate(0, 0, t.params.RefreshAge),
 		Fingerprint: fpHash,
 		Session:     session,
@@ -107,14 +107,14 @@ func (t *token) create(userID uuid.UUID, fp []byte, session bool) (entity.Access
 		return "", nil, NewError(err, false)
 	}
 
-	return entity.AccessToken(at), rt, nil
+	return models.AccessToken(at), rt, nil
 }
 
 // Create creates new access and refresh tokens using user's fingerprint
 // and deletes old tokens if total number of tokens is greater than RefreshCap.
-// It returns entity.AccessToken instance
-// and pointer to an entity.RefreshToken instance.
-func (t *token) Create(userID uuid.UUID, fp []byte, session bool) (entity.AccessToken, *entity.RefreshToken, error) {
+// It returns models.AccessToken instance
+// and pointer to an models.RefreshToken instance.
+func (t *token) Create(userID uuid.UUID, fp []byte, session bool) (models.AccessToken, *models.RefreshToken, error) {
 	tokens, err := t.repos.Token.GetByUser(context.Background(), userID)
 	if err != nil {
 		return "", nil, NewError(err, false)
@@ -136,9 +136,9 @@ func (t *token) Create(userID uuid.UUID, fp []byte, session bool) (entity.Access
 
 // Refresh verifies user's fingerprint and current refresh token by ID,
 // deletes an old refresh token and creates new access and refresh tokens.
-// It returns entity.AccessToken instance
-// and pointer to an entity.RefreshToken instance.
-func (t *token) Refresh(id uuid.UUID, fp []byte) (entity.AccessToken, *entity.RefreshToken, error) {
+// It returns models.AccessToken instance
+// and pointer to an models.RefreshToken instance.
+func (t *token) Refresh(id uuid.UUID, fp []byte) (models.AccessToken, *models.RefreshToken, error) {
 	token, err := t.Get(id)
 	if err != nil {
 		return "", nil, err
@@ -161,9 +161,9 @@ func (t *token) Refresh(id uuid.UUID, fp []byte) (entity.AccessToken, *entity.Re
 }
 
 // Get gets a refresh token by ID.
-// It returns pointer to an entity.RefreshToken instance
+// It returns pointer to an models.RefreshToken instance
 // if id is correct and token isn't expired.
-func (t *token) Get(id uuid.UUID) (*entity.RefreshToken, error) {
+func (t *token) Get(id uuid.UUID) (*models.RefreshToken, error) {
 	token, err := t.repos.Token.GetByID(context.Background(), id)
 	if err != nil {
 		if errors.Is(err, repo.ErrNoRows) {

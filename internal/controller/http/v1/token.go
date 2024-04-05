@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 
-	api "github.com/qsoulior/auth-server/internal/controller/http"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/internal/usecase"
+	api "github.com/vira-software/auth-server/internal/controller/http"
+	"github.com/vira-software/auth-server/internal/models"
+	services "github.com/vira-software/auth-server/internal/services"
 )
 
 // token represents controllers grouped by token route.
 type token struct {
-	userUC  usecase.User
-	tokenUC usecase.Token
+	userUC  services.User
+	tokenUC services.Token
 }
 
 // Create reads user data and fingerprint from request, calls User.Verify
@@ -33,9 +33,9 @@ func (t *token) Create(w http.ResponseWriter, r *http.Request) {
 
 	fingerprint := readFingerprint(r)
 
-	userID, err := t.userUC.Verify(entity.User{Name: data.Name, Password: []byte(data.Password)})
+	userID, err := t.userUC.Verify(models.User{Name: data.Name, Password: []byte(data.Password)})
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
 		})
 		return
@@ -43,7 +43,7 @@ func (t *token) Create(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := t.tokenUC.Create(userID, fingerprint, data.Session)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
+		api.HandleError(err, func(e *services.Error) {
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
 		})
 		return
@@ -67,8 +67,8 @@ func (t *token) Refresh(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, refreshToken, err := t.tokenUC.Refresh(tokenID, fingerprint)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
-			if e.Err == usecase.ErrTokenExpired {
+		api.HandleError(err, func(e *services.Error) {
+			if e.Err == services.ErrTokenExpired {
 				deleteRefreshToken(w)
 			}
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
@@ -94,8 +94,8 @@ func (t *token) Revoke(w http.ResponseWriter, r *http.Request) {
 
 	err = t.tokenUC.Delete(tokenID, fingerprint)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
-			if e.Err == usecase.ErrTokenExpired {
+		api.HandleError(err, func(e *services.Error) {
+			if e.Err == services.ErrTokenExpired {
 				deleteRefreshToken(w)
 			}
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)
@@ -119,8 +119,8 @@ func (t *token) RevokeAll(w http.ResponseWriter, r *http.Request) {
 
 	err = t.tokenUC.DeleteAll(tokenID, fingerprint)
 	if err != nil {
-		api.HandleError(err, func(e *usecase.Error) {
-			if e.Err == usecase.ErrTokenExpired {
+		api.HandleError(err, func(e *services.Error) {
+			if e.Err == services.ErrTokenExpired {
 				deleteRefreshToken(w)
 			}
 			api.ErrorJSON(w, e.Err.Error(), http.StatusBadRequest)

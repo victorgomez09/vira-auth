@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/qsoulior/auth-server/internal/entity"
-	"github.com/qsoulior/auth-server/pkg/db"
-	"github.com/qsoulior/auth-server/pkg/uuid"
+	"github.com/vira-software/auth-server/internal/db"
+	"github.com/vira-software/auth-server/internal/models"
+	"github.com/vira-software/auth-server/internal/uuid"
 )
 
 // userPostgres implements User interface.
@@ -22,12 +22,12 @@ func NewUserPostgres(db *db.Postgres) *userPostgres {
 }
 
 // Create creates a new user.
-// It returns pointer to an entity.User instance
+// It returns pointer to an models.User instance
 // or nil if data is incorrect.
-func (u *userPostgres) Create(ctx context.Context, data entity.User) (*entity.User, error) {
+func (u *userPostgres) Create(ctx context.Context, data models.User) (*models.User, error) {
 	const query = `INSERT INTO "user"(name, password) VALUES ($1, $2) RETURNING *`
 
-	var user entity.User
+	var user models.User
 	err := u.Pool.QueryRow(ctx, query, data.Name, data.Password).Scan(&user.ID, &user.Name, &user.Password)
 
 	if err != nil {
@@ -38,12 +38,12 @@ func (u *userPostgres) Create(ctx context.Context, data entity.User) (*entity.Us
 }
 
 // GetByID gets a user by ID.
-// It returns pointer to an entity.User instance
+// It returns pointer to an models.User instance
 // or nil if id is incorrect.
-func (u *userPostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+func (u *userPostgres) GetByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
 	const query = `SELECT * FROM "user" WHERE id = $1`
 
-	var user entity.User
+	var user models.User
 	err := u.Pool.QueryRow(ctx, query, id).Scan(&user.ID, &user.Name, &user.Password)
 
 	if err == pgx.ErrNoRows {
@@ -58,12 +58,12 @@ func (u *userPostgres) GetByID(ctx context.Context, id uuid.UUID) (*entity.User,
 }
 
 // GetByName gets a user by unique name.
-// It returns pointer to an entity.User instance
+// It returns pointer to an models.User instance
 // or nil if name is incorrect.
-func (u *userPostgres) GetByName(ctx context.Context, name string) (*entity.User, error) {
+func (u *userPostgres) GetByName(ctx context.Context, name string) (*models.User, error) {
 	const query = `SELECT * FROM "user" WHERE name = $1`
 
-	var user entity.User
+	var user models.User
 	err := u.Pool.QueryRow(ctx, query, name).Scan(&user.ID, &user.Name, &user.Password)
 
 	if err == pgx.ErrNoRows {
